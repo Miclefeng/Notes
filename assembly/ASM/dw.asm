@@ -18,4 +18,4 @@ addNumber: 		add ax,cs:[bx]
 				int 21H
 code ends
 
-end start
+end start ; end 通知编译器程序结束，也标记程序的入口位置，指明了程序入口在 start 处 
