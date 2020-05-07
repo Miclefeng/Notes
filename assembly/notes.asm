@@ -190,7 +190,7 @@ mov ax,[bp]   	含义： (ax)=((ss)*16+(bp))
                              (dx) = [(dx)*10000H+(ax)] / ((es)*16+0)) 的余数
   db 1 byte  define byte          8  位
   dw 2 byte  defile word          16 位
-  dd 4 byte  double define word   32 位
+  dd 4 byte  define dword   32 位
   dup        duplicate  重复次数，配合 db dw dd 使用
   db 重复次数 dup(重复的字节型数据)
   db 3       dup(0)             重复3次 db ，数据为 0
