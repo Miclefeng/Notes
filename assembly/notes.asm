@@ -165,11 +165,11 @@ mov ax,[bp]   	含义： (ax)=((ss)*16+(bp))
    1) 立即数(idata)   对于直接包含在机器指令中的数据(执行前在CPU的指令缓冲器中)，称为 立即数(idata)
    2) 寄存器          指令要处理的数据在寄存器中
    3) 段地址(SA)和偏移地址(EA)   指令要处理的数据在内存中，可用[x]的格式给出 EA，SA 在某个段寄存器中
-   mov ax,[bx+si+8]  	含义： (ax) = ((ds)*16 + (bx) + (si) + 8)
-   mov ax,[bp]       	含义： (ax) = ((ss)*16 + (bp))
-   mov ax,ds:[bp]    	含义： (ax) = ((ds)*16 + (bp))  
-   mov ax,es:[bx]    	含义： (ax) = ((es)*16 + (bx))
-   mov ax,ss:[bx+si] 	含义： (ax) = ((ss)*16 + (bx) + (si))
+   mov ax,[bx+si+8]  	  含义： (ax) = ((ds)*16 + (bx) + (si) + 8)
+   mov ax,[bp]       	  含义： (ax) = ((ss)*16 + (bp))
+   mov ax,ds:[bp]    	  含义： (ax) = ((ds)*16 + (bp))  
+   mov ax,es:[bx]    	  含义： (ax) = ((es)*16 + (bx))
+   mov ax,ss:[bx+si] 	  含义： (ax) = ((ss)*16 + (bx) + (si))
    mov ax,cs:[bx+si+8] 	含义： (ax) = ((cs)*16 + (bx) + (si) + 8)
 
 (4) 指令处理数据的长度
