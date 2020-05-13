@@ -27,10 +27,18 @@ table segment
 table ends
 
 
+string segment
+	db 10 dup('0'),0
+string ends
+
 code segment
 start:			mov ax,stack
 				mov ss,ax
 				mov sp,128
+
+				call InitReg
+				
+				call ClearScreen
 
 				call InputTable
 
@@ -40,18 +48,76 @@ start:			mov ax,stack
 				int 21h
 
 ;========================================
-InputTable:		
-				mov ax,data
-				mov ds,ax
+OutputTable:
+				call init_reg_output_table
+				
+				mov si,0
+				mov di,160*3+16
 
-				mov ax,table
-				mov es,ax
-				mov bx,0
 				mov cx,21
+
+output_table:	call showYear
+				add si,16
+				add di,160
+				loop output_table
+
+				ret
+
+;========================================
+showYear:		
+				push cx
+				push si
+				push di
+				push ds
+				push es
+				mov bx,0b800h
+				mov es,bx
+				mov cx,4
+
+show_year:		mov al,ds:[si]
+				mov es:[di],al
+				inc si
+				add di,2
+				loop show_year
+				pop es
+				pop ds
+				pop di
+				pop si
+				pop cx
+				ret
+
+;========================================
+init_reg_output_table:
+				mov bx,table
+				mov ds,bx
+
+				mov bx,string
+				mov es,bx
+
+				ret
+
+;========================================
+ClearScreen:
+				mov bx,0
+				mov dx,0700h
+				mov cx,2000
+
+clear_screen:	mov es:[bx],dx
+				add bx,2
+				loop clear_screen
+
+				ret
+
+;========================================
+InputTable:		
+				call init_reg_input_table
+				
+				mov bx,0
 				mov si,0
 				mov di,21*4*2
-input_table:
-				push ds:[si]			; CPU 不能直接操作内存到内存，只能读或写，不能同时读写，可以用栈寄存器暂存读取的数据在写入内存
+				mov cx,21
+
+input_table:	push ds:[si]			; CPU 不能直接操作内存到内存，只能读或写，不能同时读写，可以用栈寄存器暂存读取的数据在写入内存
 				pop es:[bx]
 				push ds:[si+2]
 				pop es:[bx+2]
@@ -68,14 +134,33 @@ input_table:
 				mov dx,ds:[si+21*4+2]
 				div word ptr ds:[di]
 				mov es:[bx+13],ax
+
+				add bx,16
 				add si,4
 				add di,2
-				add bx,16
 				loop input_table
+
 				ret
 
 ;========================================
+init_reg_input_table:
+				mov bx,data
+				mov ds,bx
 
+				mov bx,table
+				mov es,bx
+
+				ret
+
+;========================================
+InitReg:
+				mov bx,0B800h
+				mov es,bx
+
+				mov bx,data
+				mov ds,bx
+
+				ret
 
 
 code ends
