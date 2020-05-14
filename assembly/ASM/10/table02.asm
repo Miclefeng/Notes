@@ -28,243 +28,229 @@ table segment
 table ends
 
 
-string segment
-	db 10 dup('0'),0
-string ends
-
 code segment
 start:			mov ax,stack
 				mov ss,ax
 				mov sp,128
 
-				call InitReg
-				
 				call ClearScreen
 
 				call InputTable
 
 				call OutputTable
 
+
 				mov ax,4c00h
 				int 21h
 
-;========================================
+;=========================================================
 OutputTable:
 				mov bx,table
 				mov ds,bx
 				mov si,0
 
-				mov bx,0B800h
+				mov bx,0b800h
 				mov es,bx
-				mov di,160*3+8
+				mov di,160*3
 
 				mov cx,14
 
 output_table:	call showYear
 
-				call showSumm
+				call showIncome
 
 				call showNe
 
 				call showAverage
-
+				
 				add si,16
 				add di,160
 				loop output_table
 
-				ret
+				ret			
 
-;========================================
-showAverage:
+;=========================================================
+showAverage:		
 				push cx
-				push dx
-				push bx
 				push ax
+				push bx
+				push dx
 				push si
 				push di
 				push ds
 				push es
-				
+
 				add di,70
 				mov ax,ds:[si+13]
 				mov dx,0
-				call short_div
+
+				call shortDiv
 
 				pop es
 				pop ds
 				pop di
 				pop si
-				pop ax
-				pop bx
 				pop dx
+				pop bx
+				pop ax
 				pop cx
 
-				ret	
+				ret					
 
-;========================================
-showNe:
+;=========================================================
+showNe:		
 				push cx
-				push dx
-				push bx
 				push ax
+				push bx
+				push dx
 				push si
 				push di
 				push ds
 				push es
-				
+
 				add di,50
 				mov ax,ds:[si+10]
 				mov dx,0
-				call short_div
+
+				call shortDiv
 
 				pop es
 				pop ds
 				pop di
 				pop si
-				pop ax
-				pop bx
 				pop dx
-				pop cx
-
-				ret			
-
-;========================================
-showSumm:		
-				push cx
-				push dx
-				push bx
-				push ax
-				push si
-				push di
-				push ds
-				push es
-				
-				add di,30
-				mov ax,ds:[si+5]
-				mov dx,ds:[si+7]
-				call short_div
-
-				pop es
-				pop ds
-				pop di
-				pop si
-				pop ax
 				pop bx
-				pop dx
-				pop cx
-
-				ret			
-
-;========================================
-showYear:		
-				push cx
-				push dx
-				push bx
-				push ax
-				push si
-				push di
-				push ds
-				push es
-				mov cx,4
-
-show_year:		mov al,ds:[si]
-				mov es:[di],al
-				inc si
-				add di,2
-				loop show_year
-				pop es
-				pop ds
-				pop di
-				pop si
 				pop ax
-				pop bx
-				pop dx
 				pop cx
 
 				ret
 
-;========================================
-short_div:
-				mov cx,10
+;=========================================================
+showIncome:		
+				push cx
+				push ax
+				push bx
+				push dx
+				push si
+				push di
+				push ds
+				push es
+
+				add di,30
+				mov ax,ds:[si+5]
+				mov dx,ds:[si+7]
+
+				call shortDiv
+
+				pop es
+				pop ds
+				pop di
+				pop si
+				pop dx
+				pop bx
+				pop ax
+				pop cx
+
+				ret
+
+;=========================================================
+shortDiv:		mov cx,10
 				div cx
 
-				add dl,30h				; ASCII 码的数字值 比数字多 30h
-				mov es:[di+0],dl
-				mov byte ptr es:[di+1],00000100B
+				add dl,30h
+				mov es:[di],dl
 				mov cx,ax
 				jcxz short_div_ret
-				sub di,2
 				mov dx,0
-				jmp short_div
+				sub di,2
+				jmp shortDiv
 
 short_div_ret:	ret
 
-;========================================
-InputTable:		
-				call init_reg_input_table
-				
-				mov bx,0
+;=========================================================
+showYear:
+				push cx
+				push ax
+				push bx
+				push dx
+				push si
+				push di
+				push ds
+				push es
+
+				add di,6
+				mov cx,4
+
+show_year:		mov dl,ds:[si]
+				mov es:[di],dl
+				inc si
+				add di,2
+				loop show_year
+
+				pop es
+				pop ds
+				pop di
+				pop si
+				pop dx
+				pop bx
+				pop ax
+				pop cx
+
+				ret
+
+;=========================================================
+InputTable:
+				mov bx,data
+				mov ds,bx
 				mov si,0
-				mov di,21*4*2
+
+				mov bx,table
+				mov es,bx
+				mov di,0
+
+				mov bx,21*4*2
 				mov cx,21
 
-input_table:	push ds:[si]			; CPU 不能直接操作内存到内存，只能读或写，不能同时读写，可以用栈寄存器暂存读取的数据在写入内存
-				pop es:[bx]
+input_table:	push ds:[si]
+				pop es:[di]
 				push ds:[si+2]
-				pop es:[bx+2]
+				pop es:[di+2]
 
 				push ds:[si+21*4]
-				pop es:[bx+5]
+				pop es:[di+5]
 				push ds:[si+21*4+2]
-				pop es:[bx+7]
+				pop es:[di+7]
 
-				push ds:[di]
-				pop es:[bx+10]
+				push ds:[bx]
+				pop es:[di+10]
 
-				mov ax,ds:[si+21*4]		; 16位除法，ax保存低16位被除数，dx保存高16位被除数
+				mov ax,ds:[si+21*4]
 				mov dx,ds:[si+21*4+2]
-				div word ptr ds:[di]
-				mov es:[bx+13],ax
 
-				add bx,16
+				div word ptr ds:[bx]
+				mov es:[di+13],ax
+
 				add si,4
-				add di,2
+				add bx,2
+				add di,16
 				loop input_table
 
 				ret
 
-;========================================
-init_reg_input_table:
-				mov bx,data
-				mov ds,bx
-
-				mov bx,table
-				mov es,bx
-
-				ret
-
-;========================================
+;=========================================================
 ClearScreen:
-				mov bx,0
+				mov bx,0b800h
+				mov es,bx
+				mov di,0
+
 				mov dx,0700h
 				mov cx,2000
 
-clear_screen:	mov es:[bx],dx
-				add bx,2
+clear_screen:	mov es:[di],dx
+				add di,2
 				loop clear_screen
 
 				ret
-
-;========================================
-InitReg:
-				mov bx,0B800h
-				mov es,bx
-
-				mov bx,data
-				mov ds,bx
-
-				ret
-
 
 code ends
 
